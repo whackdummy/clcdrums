@@ -596,7 +596,7 @@ footer{
 <div class="writing-area" id="writing-area">
   <input id="hidden-input" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true">
   <div class="text-content" id="text-content">
-    <span id="word-wrap"><span id="current-word"></span><span class="cursor"></span></span><span class="placeholder" id="placeholder">Begin writing…</span>
+    <span id="words-container"></span><span id="word-wrap"><span id="current-word"></span><span class="cursor"></span></span><span class="placeholder" id="placeholder">Begin writing…</span>
   </div>
 </div>
 
@@ -712,14 +712,15 @@ function isValidBibleWord(word) {
 // ────────────────────────────────────────────
 // DOM REFS
 // ────────────────────────────────────────────
-const hiddenInput   = document.getElementById('hidden-input');
-const textContent   = document.getElementById('text-content');
-const currentWord   = document.getElementById('current-word');
-const wordWrap      = document.getElementById('word-wrap');
-const wordCountEl   = document.getElementById('word-count');
-const rejectionEl   = document.getElementById('rejection-msg');
-const placeholder   = document.getElementById('placeholder');
-const writingArea   = document.getElementById('writing-area');
+const hiddenInput      = document.getElementById('hidden-input');
+const textContent      = document.getElementById('text-content');
+const currentWord      = document.getElementById('current-word');
+const wordWrap         = document.getElementById('word-wrap');
+const wordsContainer   = document.getElementById('words-container');
+const wordCountEl      = document.getElementById('word-count');
+const rejectionEl      = document.getElementById('rejection-msg');
+const placeholder      = document.getElementById('placeholder');
+const writingArea      = document.getElementById('writing-area');
 
 const acceptedWords = []; // { word, span }
 let rejTimer = null;
@@ -756,13 +757,10 @@ hiddenInput.addEventListener('input', () => {
     // Mobile keyboards can bypass keydown preventDefault — handle space here
     const word = raw.split(/\s/)[0];
     hiddenInput.value = '';
-    if (word.length > 0) {
-      // Keep currentWord visible so submitWord can measure its position
-      currentWord.textContent = word;
-      submitWord(word); // acceptWord/rejectWord will clear currentWord
-    } else {
-      currentWord.textContent = '';
-    }
+    // currentWord.textContent already shows the word from per-character input events
+    // submitWord reads it for animation coords; acceptWord/rejectWord will clear it
+    if (word.length > 0) submitWord(word);
+    else currentWord.textContent = '';
   } else {
     currentWord.textContent = raw;
   }
@@ -785,7 +783,7 @@ function acceptWord(w) {
   span.className = 'accepted-word';
   span.textContent = w + ' ';
 
-  textContent.insertBefore(span, wordWrap);
+  wordsContainer.appendChild(span);
 
   requestAnimationFrame(() => {
     span.classList.add('glow');
