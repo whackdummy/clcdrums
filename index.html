@@ -126,7 +126,8 @@ h1{
   padding:26px 30px;
   cursor:text;
   position:relative;
-  overflow:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
   box-shadow:0 6px 60px rgba(0,0,0,.6),0 2px 12px rgba(0,0,0,.4),inset 0 0 80px rgba(201,168,76,.06);
   border:1px solid rgba(201,168,76,.2);
 }
@@ -203,7 +204,7 @@ h1{
   max-width:100%;
   display:flex;
   justify-content:space-between;
-  align-items:baseline;
+  align-items:center;
   margin-top:14px;
   padding:0 2px;
 }
@@ -223,8 +224,12 @@ h1{
   min-height:1.2em;
   opacity:0;
   transition:opacity .25s;
-  text-align:right;
-  max-width:70%;
+  text-align:center;
+  flex:1;
+  padding:0 8px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 .rejection-msg.visible{
@@ -576,7 +581,18 @@ footer{
   #search-results{ max-height:240px; }
   .sr-word{ font-size:.92rem; }
   .sr-locs{ font-size:.74rem; }
-  .status-area{ margin-top:8px; }
+  .status-area{
+    margin-top:8px;
+    flex-wrap:wrap;
+    row-gap:3px;
+  }
+  .rejection-msg{
+    width:100%;
+    max-width:100%;
+    text-align:center;
+    font-size:.85rem;
+    order:10;
+  }
   footer{ font-size:.68rem; padding-top:6px; }
 }
 
@@ -751,16 +767,17 @@ hiddenInput.addEventListener('keydown', e => {
   }
 });
 
-hiddenInput.addEventListener('input', () => {
+hiddenInput.addEventListener('input', e => {
   const raw = hiddenInput.value;
   if (/\s/.test(raw)) {
     // Mobile keyboards can bypass keydown preventDefault — handle space here
-    const word = raw.split(/\s/)[0];
+    const word = raw.trim().split(/\s+/)[0];
     hiddenInput.value = '';
-    // currentWord.textContent already shows the word from per-character input events
-    // submitWord reads it for animation coords; acceptWord/rejectWord will clear it
     if (word.length > 0) submitWord(word);
     else currentWord.textContent = '';
+  } else if (e.inputType === 'deleteContentBackward' && raw === '' && currentWord.textContent === '') {
+    // Backspace on empty field — remove last accepted word (handles mobile virtual keyboard)
+    removeLastWord();
   } else {
     currentWord.textContent = raw;
   }
@@ -1114,8 +1131,7 @@ searchInput.addEventListener('input', () => {
       })
       .join('');
     searchResults.querySelectorAll('.sr-item').forEach(el => {
-      el.addEventListener('mousedown', e => {
-        e.preventDefault();
+      el.addEventListener('click', () => {
         acceptWord(el.querySelector('.sr-word').textContent);
         closeSearch();
       });
