@@ -328,27 +328,79 @@ footer{
   animation:emberRise var(--dur) var(--delay) ease-out forwards;
 }
 
-/* ── Word search ── */
+/* ── Search toggle button ── */
+#search-toggle{
+  background:none;
+  border:none;
+  padding:3px 5px;
+  cursor:pointer;
+  color:rgba(201,168,76,.45);
+  transition:color .2s,filter .2s;
+  display:flex;
+  align-items:center;
+  flex-shrink:0;
+  line-height:1;
+}
+#search-toggle:hover{
+  color:#c9a84c;
+  filter:drop-shadow(0 0 5px rgba(201,168,76,.55));
+}
+#search-toggle.active{
+  color:#c9a84c;
+  filter:drop-shadow(0 0 8px rgba(201,168,76,.7));
+}
+
+/* ── Word search panel ── */
 #word-search{
   position:fixed;
-  top:22px;
-  right:24px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-54%);
   z-index:200;
-  width:320px;
+  width:400px;
+  max-width:calc(100vw - 32px);
+  display:none;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 12px 70px rgba(0,0,0,.85),0 0 0 1px rgba(201,168,76,.22),0 0 40px rgba(201,168,76,.07);
 }
+#word-search.open{ display:block; }
+
+#search-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(14,8,2,.98);
+  border-bottom:1px solid rgba(201,168,76,.15);
+  padding:9px 14px 8px;
+}
+#search-title{
+  font-family:'Cinzel',serif;
+  font-size:.6rem;
+  letter-spacing:.25em;
+  color:rgba(201,168,76,.45);
+}
+#search-close{
+  background:none;
+  border:none;
+  color:rgba(201,168,76,.4);
+  cursor:pointer;
+  font-size:.95rem;
+  line-height:1;
+  padding:0;
+  transition:color .15s;
+  font-family:'Cinzel',serif;
+}
+#search-close:hover{ color:#c9a84c; }
 
 #search-box{
   display:flex;
   align-items:center;
   gap:10px;
-  background:rgba(20,12,4,.92);
-  border:1px solid rgba(201,168,76,.3);
-  border-radius:3px;
-  padding:10px 14px;
-  backdrop-filter:blur(4px);
+  background:rgba(20,12,4,.97);
+  padding:11px 14px;
 }
-
-#search-box svg{ flex-shrink:0; opacity:.5; }
+#search-box svg{ flex-shrink:0; opacity:.4; }
 
 #search-input{
   background:none;
@@ -368,11 +420,9 @@ footer{
 
 #search-results{
   display:none;
-  background:rgba(20,12,4,.96);
-  border:1px solid rgba(201,168,76,.2);
-  border-top:none;
-  border-radius:0 0 3px 3px;
-  max-height:360px;
+  background:rgba(20,12,4,.98);
+  border-top:1px solid rgba(201,168,76,.1);
+  max-height:340px;
   overflow-y:auto;
   scrollbar-width:thin;
   scrollbar-color:rgba(201,168,76,.2) transparent;
@@ -476,18 +526,31 @@ footer{
     height:auto;
     min-height:100dvh;
     overflow:auto;
-    padding:10px 10px 60px;
+    padding:8px 10px 50px;
   }
-  header{ margin-bottom:8px; }
-  h1{ font-size:clamp(1.4rem,7vw,2rem); letter-spacing:.2em; }
-  .subtitle{ font-size:.78rem; }
+  header{ margin-bottom:6px; }
+  h1{
+    font-size:clamp(1.5rem,8vw,2.2rem);
+    letter-spacing:.18em;
+    margin-bottom:2px;
+  }
+  .subtitle{
+    font-size:.72rem;
+    letter-spacing:.06em;
+  }
   .writing-area{
     flex:none;
-    min-height:52vh;
+    min-height:54vh;
     width:100%;
-    padding:16px 14px;
+    padding:14px 12px;
   }
-  .text-content{ font-size:1.15rem; line-height:1.7; position:relative; z-index:11; pointer-events:none; }
+  .text-content{
+    font-size:1.1rem;
+    line-height:1.7;
+    position:relative;
+    z-index:11;
+    pointer-events:none;
+  }
   /* Cover the whole writing area so tapping it directly focuses the input */
   #hidden-input{
     pointer-events:auto;
@@ -502,19 +565,22 @@ footer{
     padding:0;
     cursor:text;
   }
+  /* Search panel: wider on mobile, positioned higher */
   #word-search{
-    position:fixed;
-    top:8px;
-    right:8px;
-    width:clamp(140px,44vw,220px);
+    top:45%;
+    width:calc(100vw - 24px);
   }
-  #search-box{ padding:7px 10px; gap:7px; }
-  #search-input{ font-size:.88rem; }
-  #search-results{ max-height:220px; }
-  .sr-word{ font-size:.9rem; }
-  .sr-locs{ font-size:.72rem; }
-  .status-area{ font-size:.78rem; }
-  footer{ font-size:.7rem; }
+  #search-input{ font-size:.95rem; }
+  #search-results{ max-height:240px; }
+  .sr-word{ font-size:.92rem; }
+  .sr-locs{ font-size:.74rem; }
+  .status-area{ margin-top:8px; }
+  footer{ font-size:.68rem; padding-top:6px; }
+}
+
+@media(max-width:400px){
+  h1{ font-size:clamp(1.2rem,9vw,1.7rem); }
+  .subtitle{ display:none; }
 }
 </style>
 </head>
@@ -533,14 +599,24 @@ footer{
 </div>
 
 <div class="status-area">
+  <button id="search-toggle" aria-label="Search scripture words">
+    <svg width="17" height="17" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="5.2" cy="5.2" r="4"/>
+      <line x1="8.2" y1="8.2" x2="12.5" y2="12.5"/>
+    </svg>
+  </button>
   <span class="word-count">Words: <span id="word-count">0</span></span>
   <span class="rejection-msg" id="rejection-msg"></span>
   <button class="save-btn" id="save-btn">SAVE</button>
 </div>
 
 <div id="word-search">
+  <div id="search-header">
+    <span id="search-title">SEARCH THE SCRIPTURE</span>
+    <button id="search-close" aria-label="Close search">✕</button>
+  </div>
   <div id="search-box">
-    <svg width="17" height="17" viewBox="0 0 13 13" fill="none" stroke="#c9a84c" stroke-width="1.6" stroke-linecap="round">
+    <svg width="16" height="16" viewBox="0 0 13 13" fill="none" stroke="#c9a84c" stroke-width="1.6" stroke-linecap="round">
       <circle cx="5.2" cy="5.2" r="4"/>
       <line x1="8.2" y1="8.2" x2="12.5" y2="12.5"/>
     </svg>
@@ -986,7 +1062,28 @@ function triggerSaveAnimation(onDownload) {
 // ────────────────────────────────────────────
 const searchInput   = document.getElementById('search-input');
 const searchResults = document.getElementById('search-results');
+const searchToggle  = document.getElementById('search-toggle');
+const searchClose   = document.getElementById('search-close');
+const wordSearchEl  = document.getElementById('word-search');
 const sortedWords   = [...bibleWords].sort();
+
+function openSearch() {
+  wordSearchEl.classList.add('open');
+  searchToggle.classList.add('active');
+  searchInput.focus();
+}
+function closeSearch() {
+  wordSearchEl.classList.remove('open');
+  searchToggle.classList.remove('active');
+  searchInput.value = '';
+  searchResults.style.display = 'none';
+  hiddenInput.focus();
+}
+
+searchToggle.addEventListener('click', () => {
+  wordSearchEl.classList.contains('open') ? closeSearch() : openSearch();
+});
+searchClose.addEventListener('click', closeSearch);
 
 searchInput.addEventListener('input', () => {
   const q = searchInput.value.toLowerCase().trim();
@@ -1016,9 +1113,7 @@ searchInput.addEventListener('input', () => {
       el.addEventListener('mousedown', e => {
         e.preventDefault();
         acceptWord(el.querySelector('.sr-word').textContent);
-        searchInput.value = '';
-        searchResults.style.display = 'none';
-        hiddenInput.focus();
+        closeSearch();
       });
     });
   }
@@ -1026,16 +1121,12 @@ searchInput.addEventListener('input', () => {
 });
 
 searchInput.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    searchInput.value = '';
-    searchResults.style.display = 'none';
-    hiddenInput.focus();
-  }
+  if (e.key === 'Escape') closeSearch();
 });
 
 document.addEventListener('click', e => {
-  if (!document.getElementById('word-search').contains(e.target)) {
-    searchResults.style.display = 'none';
+  if (!wordSearchEl.contains(e.target) && !searchToggle.contains(e.target)) {
+    if (wordSearchEl.classList.contains('open')) closeSearch();
   }
 });
 </script>
