@@ -298,7 +298,7 @@ footer{
 }
 
 .hell-word{
-  position:absolute;
+  position:fixed;
   pointer-events:none;
   z-index:9000;
   font-family:'IM Fell English',serif;
@@ -311,7 +311,7 @@ footer{
 }
 
 .hell-glow{
-  position:absolute;
+  position:fixed;
   pointer-events:none;
   z-index:8999;
   width:240px;
@@ -321,7 +321,7 @@ footer{
 }
 
 .ember{
-  position:absolute;
+  position:fixed;
   pointer-events:none;
   z-index:9001;
   border-radius:50%;
@@ -540,17 +540,19 @@ footer{
   }
   .writing-area{
     flex:none;
-    min-height:54vh;
+    min-height:58vh;
     width:100%;
-    padding:14px 12px;
+    padding:18px 16px;
   }
   .text-content{
-    font-size:1.1rem;
-    line-height:1.7;
+    font-size:1.3rem;
+    line-height:1.85;
+    min-height:80px;
     position:relative;
     z-index:11;
     pointer-events:none;
   }
+  .hell-word{ font-size:1.3rem; }
   /* Cover the whole writing area so tapping it directly focuses the input */
   #hidden-input{
     pointer-events:auto;
@@ -799,31 +801,30 @@ function rejectWord(w) {
   const rect   = currentWord.getBoundingClientRect();
   const ref    = rect.width > 2 ? rect : waRect;
 
-  // Convert to coords relative to writingArea (which is the offset parent)
-  const relLeft   = ref.left   - waRect.left;
-  const relTop    = ref.top    - waRect.top;
-  const relBottom = ref.bottom - waRect.top;
-  const relCx     = ref.left + ref.width / 2 - waRect.left;
+  // Use viewport coords — elements are position:fixed so no offset adjustment needed
+  const fixedLeft   = ref.left;
+  const fixedTop    = ref.top;
+  const fixedBottom = ref.bottom;
+  const fixedCx     = ref.left + ref.width / 2;
 
-  // Clone falls inside the writing area, clipped by overflow:hidden
   const clone = document.createElement('div');
   clone.className = 'hell-word';
   clone.textContent = w;
-  clone.style.left = relLeft + 'px';
-  clone.style.top  = relTop  + 'px';
-  writingArea.appendChild(clone);
+  clone.style.left = fixedLeft + 'px';
+  clone.style.top  = fixedTop  + 'px';
+  document.body.appendChild(clone);
   clone.addEventListener('animationend', () => clone.remove(), { once: true });
 
   // Hellmouth glow
   const glow = document.createElement('div');
   glow.className = 'hell-glow';
-  glow.style.left = (relCx - 120) + 'px';
-  glow.style.top  = (relBottom - 10) + 'px';
-  writingArea.appendChild(glow);
+  glow.style.left = (fixedCx - 120) + 'px';
+  glow.style.top  = (fixedBottom - 10) + 'px';
+  document.body.appendChild(glow);
   glow.addEventListener('animationend', () => glow.remove(), { once: true });
 
-  // Fire embers — relative coords, appended inside writing area
-  spawnEmbers(relCx, relBottom, w.length);
+  // Fire embers — viewport coords, appended to body
+  spawnEmbers(fixedCx, fixedBottom, w.length);
 
   // Clear input immediately; hold placeholder until fall finishes
   hiddenInput.value = '';
@@ -871,7 +872,7 @@ function spawnEmbers(cx, startY, wordLen) {
       `--delay:${delay}s`
     ].join(';');
 
-    writingArea.appendChild(el);
+    document.body.appendChild(el);
     setTimeout(() => el.remove(), (parseFloat(dur) + parseFloat(delay) + .15) * 1000);
   }
 }
