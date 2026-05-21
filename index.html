@@ -756,8 +756,13 @@ hiddenInput.addEventListener('input', () => {
     // Mobile keyboards can bypass keydown preventDefault — handle space here
     const word = raw.split(/\s/)[0];
     hiddenInput.value = '';
-    currentWord.textContent = '';
-    if (word.length > 0) submitWord(word);
+    if (word.length > 0) {
+      // Keep currentWord visible so submitWord can measure its position
+      currentWord.textContent = word;
+      submitWord(word); // acceptWord/rejectWord will clear currentWord
+    } else {
+      currentWord.textContent = '';
+    }
   } else {
     currentWord.textContent = raw;
   }
@@ -768,10 +773,11 @@ hiddenInput.addEventListener('input', () => {
 // SUBMIT
 // ────────────────────────────────────────────
 function submitWord(w) {
-  // Strip leading/trailing punctuation before validating, but keep original for display
   const core = w.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, '');
   if (!core) return;
-  isValidBibleWord(core) ? acceptWord(w) : rejectWord(w);
+  // Snapshot position before any DOM changes so rejectWord has accurate coords
+  const wordRect = currentWord.getBoundingClientRect();
+  isValidBibleWord(core) ? acceptWord(w) : rejectWord(w, wordRect);
 }
 
 function acceptWord(w) {
@@ -794,14 +800,13 @@ function acceptWord(w) {
   clearRejection();
 }
 
-function rejectWord(w) {
+function rejectWord(w, wordRect) {
   showRejection(`"${w}" — dragged into the pit`);
 
+  // wordRect is pre-measured by submitWord before any DOM changes
   const waRect = writingArea.getBoundingClientRect();
-  const rect   = currentWord.getBoundingClientRect();
-  const ref    = rect.width > 2 ? rect : waRect;
+  const ref    = (wordRect && wordRect.width > 2) ? wordRect : waRect;
 
-  // Use viewport coords — elements are position:fixed so no offset adjustment needed
   const fixedLeft   = ref.left;
   const fixedTop    = ref.top;
   const fixedBottom = ref.bottom;
