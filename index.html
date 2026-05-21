@@ -487,7 +487,21 @@ footer{
     width:100%;
     padding:16px 14px;
   }
-  .text-content{ font-size:1.15rem; line-height:1.7; }
+  .text-content{ font-size:1.15rem; line-height:1.7; position:relative; z-index:11; pointer-events:none; }
+  /* Cover the whole writing area so tapping it directly focuses the input */
+  #hidden-input{
+    pointer-events:auto;
+    width:100%;
+    height:100%;
+    z-index:10;
+    color:transparent;
+    caret-color:transparent;
+    background:transparent;
+    border:none;
+    outline:none;
+    padding:0;
+    cursor:text;
+  }
   #word-search{
     position:fixed;
     top:8px;
@@ -636,12 +650,6 @@ let rejTimer = null;
 // FOCUS
 // ────────────────────────────────────────────
 writingArea.addEventListener('click', () => hiddenInput.focus());
-writingArea.addEventListener('touchstart', e => {
-  if (!e.target.closest('#word-search')) {
-    e.preventDefault();
-    hiddenInput.focus();
-  }
-}, { passive: false });
 document.addEventListener('keydown', e => {
   if (document.activeElement !== searchInput) hiddenInput.focus();
 });
