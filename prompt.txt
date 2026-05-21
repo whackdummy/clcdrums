@@ -1,0 +1,27 @@
+Build a single-file HTML web app called bible-typewriter.html. It's a typewriter that only accepts words found in the Bible (any English translation).
+Core behavior:
+User types into a hidden input; their current word renders as a visible styled span with a blinking cursor
+When they hit space or enter, check if the word is a Bible word
+If valid: add it to the accepted text with a brief gold glow animation
+If invalid: shake the word red, burst a cross animation (SVG, crimson with gold glow) over it, scatter the letters as floating particles, then clear the input
+Backspace on empty input removes the last accepted word
+Visual design:
+Dark background (#1a1208), parchment writing area (#f5ead6 to #ede0c4 gradient)
+Fonts: Cinzel (headings) + IM Fell English (body text) from Google Fonts
+Gold (#c9a84c) and crimson (#8b1a1a) accent colors
+Title: "THE WORD" in Cinzel with gold glow
+Subtitle: "Only scripture's language may be written here"
+Footer verse: "In the beginning was the Word — John 1:1"
+Word count display, status message showing rejected word name
+Word validation:
+Maintain a large Set of ~1000+ Bible words covering KJV, NIV, ESV, NRSV, NLT, NASB — include common nouns, verbs, names, places, theological terms, archaic KJV words (thee, thou, hath, saith, etc.)
+Also accept common morphological variants: plurals (-s, -es, -ies), past tense (-ed, -d), gerunds (-ing), adverbs (-ly), comparatives (-er, -est), and suffixes (-ness, -tion, -ment, -ful, -less)
+Cross animation:
+SVG cross, sized relative to word length
+Animates: scale up from small → full size → fade out while drifting up
+Gold glow filter behind crimson bars
+Technical:
+Pure vanilla HTML/CSS/JS, no frameworks, no dependencies except Google Fonts
+Single self-contained file
+Hidden <input> captures keystrokes; a <span> renders the current word visibly
+All animation via CSS keyframes
